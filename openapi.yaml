@@ -1,0 +1,277 @@
+openapi: 3.1.0
+info:
+  title: Recrutei Talent Public Action
+  version: 1.0.0
+  description: API somente leitura para conectar GPT Actions à Base Pública de Talentos do Recrutei via middleware seguro.
+servers:
+  - url: https://SEU-DOMINIO-DO-MIDDLEWARE
+    description: Troque pelo domínio público HTTPS onde este middleware foi publicado.
+security:
+  - ApiKeyAuth: []
+paths:
+  /recrutei/talent/public/search:
+    post:
+      operationId: buscarTalentosNaBasePublica
+      summary: Buscar talentos na Base Pública do Recrutei
+      description: Busca talentos em modo somente leitura na mesma base da tela /talent/public, via middleware.
+      x-openai-isConsequential: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                base:
+                  type: string
+                  enum: [talent_public]
+                  default: talent_public
+                cargo:
+                  type: string
+                cargosEquivalentes:
+                  type: array
+                  items:
+                    type: string
+                palavrasChave:
+                  type: string
+                localizacao:
+                  type: string
+                senioridade:
+                  type: string
+                segmento:
+                  type: string
+                modeloTrabalho:
+                  type: string
+                  enum: [remoto, híbrido, presencial, indiferente]
+                regimeContratacao:
+                  type: string
+                aderenciaMinima:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                  default: 70
+                limite:
+                  type: integer
+                  minimum: 1
+                  maximum: 50
+                  default: 30
+                pagina:
+                  type: integer
+                  minimum: 1
+                  default: 1
+              required: [base, limite]
+      responses:
+        "200":
+          description: Lista de talentos encontrados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalEncontrado:
+                    type: integer
+                  pagina:
+                    type: integer
+                  limite:
+                    type: integer
+                  origem:
+                    type: string
+                    enum: [talent_public]
+                  talentos:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TalentoResumoProfissional"
+                required: [totalEncontrado, pagina, limite, origem, talentos]
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+
+  /recrutei/talent/public/{talentoId}/profile:
+    get:
+      operationId: obterPerfilProfissionalDoTalentoPublico
+      summary: Obter perfil profissional de talento público
+      x-openai-isConsequential: false
+      parameters:
+        - name: talentoId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Perfil profissional
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TalentoPerfilProfissional"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+
+  /recrutei/talent/public/{talentoId}/resume:
+    get:
+      operationId: obterCurriculoProfissionalDoTalentoPublico
+      summary: Obter currículo profissional de talento público
+      x-openai-isConsequential: false
+      parameters:
+        - name: talentoId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Currículo profissional
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TalentoCurriculoProfissional"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    TalentoResumoProfissional:
+      type: object
+      additionalProperties: false
+      properties:
+        talentoId:
+          type: string
+        nome:
+          type: string
+        linkInterno:
+          type: string
+        cargoAtual:
+          type: string
+        empresaAtual:
+          type: string
+        localizacaoProfissional:
+          type: string
+        senioridadeAparente:
+          type: string
+        resumoProfissional:
+          type: string
+        competencias:
+          type: array
+          items:
+            type: string
+        ferramentas:
+          type: array
+          items:
+            type: string
+        segmentos:
+          type: array
+          items:
+            type: string
+        ultimaAtualizacao:
+          type: string
+          nullable: true
+      required: [talentoId, nome]
+    TalentoPerfilProfissional:
+      type: object
+      additionalProperties: true
+      properties:
+        talentoId:
+          type: string
+        nome:
+          type: string
+        linkInterno:
+          type: string
+        cargoAtual:
+          type: string
+        empresaAtual:
+          type: string
+        localizacaoProfissional:
+          type: string
+        resumoProfissional:
+          type: string
+        experiencias:
+          type: array
+          items:
+            type: object
+        formacao:
+          type: array
+          items:
+            type: object
+        competencias:
+          type: array
+          items:
+            type: string
+        ferramentas:
+          type: array
+          items:
+            type: string
+        idiomas:
+          type: array
+          items:
+            type: string
+        linkedin:
+          type: string
+      required: [talentoId, nome]
+    TalentoCurriculoProfissional:
+      type: object
+      additionalProperties: true
+      properties:
+        talentoId:
+          type: string
+        nome:
+          type: string
+        curriculoTexto:
+          type: string
+        experiencias:
+          type: array
+          items:
+            type: object
+        formacao:
+          type: array
+          items:
+            type: object
+        competencias:
+          type: array
+          items:
+            type: string
+        ferramentas:
+          type: array
+          items:
+            type: string
+      required: [talentoId, nome]
+    ErrorResponse:
+      type: object
+      properties:
+        erro:
+          type: string
+        mensagem:
+          type: string
+        detalheTecnico:
+          nullable: true
+  responses:
+    BadRequest:
+      description: Parâmetros inválidos
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Não autenticado
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    BadGateway:
+      description: Falha ao consultar a API/base pública do Recrutei
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
