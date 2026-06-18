@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: API somente leitura para conectar GPT Actions à Base Pública de Talentos do Recrutei via middleware seguro.
 servers:
-  - url: https://SEU-DOMINIO-DO-MIDDLEWARE
+  - url: https://recrutei-talent-public-action.onrender.com
     description: Troque pelo domínio público HTTPS onde este middleware foi publicado.
 security:
   - ApiKeyAuth: []
