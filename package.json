@@ -4,11 +4,11 @@
   "description": "Middleware somente leitura para conectar GPT Actions à Base Pública de Talentos do Recrutei via API oficial/middleware interno.",
   "type": "module",
   "scripts": {
-    "start": "node src/server.mjs",
-    "dev": "node --watch src/server.mjs"
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs"
   },
   "engines": {
-    "node": ">=18"
+    "node": "24.x"
   },
   "dependencies": {
     "express": "^4.18.3",
